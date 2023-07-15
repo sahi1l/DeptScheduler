@@ -1,0 +1,6 @@
+I want to take a collection of classes, and figure out when there is overlap and when there is not.  Figure out how many overlaps there are maximum.
+
+Overlap(list) should take a list of statements like "MWF10-11" etc, and indicates which timeslots where they overlap, like M10-0, M10-1, M13-1, etc
+
+Go through the statements and create a list like M10_0, M10_1, etc. These are keys in a dictionary, with values equal to the number of times they appear.
+
