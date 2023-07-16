@@ -66,6 +66,10 @@ class Block {//as represented on the calendar
     duration() {
         return this.end.minutes - this.start.minutes;
     }
+    contents() {
+        //output content
+        return `${this.start.print()}-${this.end.print()}`;
+    }
 }
 class ClassData {
     constructor(name,instructor,room) {
@@ -119,14 +123,30 @@ class Schedule {
         //days should be a string like "MTWRF"
         //starttime and endtime should be strings
         this.$root = $("#schedule");
-        this.$header = $("#schedule>#header");
-        this.$body = $("#schedule>#body");
+        this.$header = $("#schedule>thead>tr");
+        this.$body = $("#schedule>tbody");
         this.start = new Time(starttime);
         this.end = new Time(endtime);
         this.days = days;
         this.column = {};
         for (let day of this.days) {
             this.column[day] = []; //list of Blocks
+        }
+        this.setupTable();
+    }
+    setupTable() {
+        let fr = 1.0/(this.days.length+0.5)*100;
+        this.$header.append($("<th class=time>")
+                            .css({width:`${fr/2}%`})
+                           );
+        //blank upper-left corner
+        let display = this.start.copy();
+        this.times = [];
+        while (display.minutes() < this.end.minutes()) {
+            this.times.push(display.minutes()); //don't do this more than once, eh?
+            let $tr = $("<tr>").addClass(`time time${display.minutes()}`).appendTo(this.$body);
+            $("<th>").html(display.print()).appendTo($tr);
+            display.add(30);
         }
     }
     addBlock(block){this.column[block.day].push(block);}
@@ -144,15 +164,14 @@ class Schedule {
         this.sortColumn(day);
         let columns = [new TimeRange()];
         for (let block of this.column[day]) {
-            console.debug(block);
             let done = false;
             for (let i in columns) {
                 let col = columns[i];
                 if (!(col.contains(block.start) || col.contains(block.end))) {
                     col.add(block.start,block.end);
                     done=true;
-                    break;
                     block.x = i;
+                    break;
                 }
             }
             if(!done) {
@@ -165,38 +184,58 @@ class Schedule {
         return columns;
     }
     generate() {
-        //        this.$header.append($("<div>"));
-        let sm = this.start.minutes();
-        let em = this.end.minutes();
-        let $times = $("<div>").addClass("times").css({"grid-area": "2/1"}).appendTo(this.$root);
-        let height = $times.height();
-        let ppm = height/(em-sm);
-        let display = this.start.copy();
-        while (display.minutes() < em) {
-            $("<div>").html(display.print()).css({top:(display.minutes()-sm)*ppm}).appendTo($times);
-            display.add(30);
-        }
-        let $cols = [];
-        for (let i in this.days) {
-            i = Number(i);
-            let day = this.days[i];
-            let name = DayNames[day];
-            $("<div>").html(name).css({"grid-area": `1/${i+2}`}).appendTo(this.$root);
-            let $col = $("<div>").addClass("column").css({"grid-area": `2/${i+2}`}).appendTo(this.$root);
-            let width = $col.width();
+        let fr = 1.0/(this.days.length+0.5)*100;
+        let colNs = {};
+        //Make the headers
+        for (let day of this.days) {
             let cols = this.getColumns(day);
-            let subwidth = width/cols.length;
-            console.debug(this.column[day]);
-            for (let block of this.column[day]) {
-                console.debug(block);
-                $("<div>").addClass("block").html(`${block.start.print()}-${block.end.print()}`)
-                    .css({top: (block.start.minutes()-sm)*ppm,
-                          bottom: (block.end.minutes()-sm)*ppm,
-                          left: block.x*subwidth,
-                          width: subwidth,
-                          position: "absolute"}).appendTo($col);
+            colNs[day] = cols.length;
+            $("<th>").addClass(`day day${day}`)
+                .html(DayNames[day])
+//                .css({width:`${fr}%`})//or maybe spread evenly? hard to say yet 
+                .attr("colspan",cols.length) 
+                .appendTo(this.$header);
+            
+        }
+        for (let day of this.days) {
+            let slots = {};
+            for(let x=0;x<colNs[day];x++){
+                slots[x] = {};
+                for (let time of this.times) {
+                    slots[x][time] = "OK";
+                }
             }
-                
+            for (let block of this.column[day]) {
+                let x = block.x;
+                let startslot = Math.floor(block.start.minutes()/30)*30;
+                let endslot = Math.ceil(block.end.minutes()/30)*30;
+                let count = (endslot-startslot)/30;
+                slots[x][startslot] = block;
+                let ss = startslot+30;
+                let span = 1;
+                while (ss<endslot){
+                    slots[x][ss] = "NO";
+                    span += 1;
+                    ss+=30;
+                }
+                block.span = span;
+            }
+            for (let x=0;x<colNs[day];x++){
+                for (let time of this.times) {
+                    if(slots[x][time] == "OK") {
+                        $(`tr.time${time}`).append("<td>");
+                    } else if (slots[x][time] != "NO"){
+                        console.debug(x,time,slots[x][time],slots[x][time] instanceof Block);
+                        let $td = $("<td>").appendTo($(`tr.time${time}`))
+                            .attr("rowspan",slots[x][time].span);
+                        $("<div>")
+                            .addClass("block")
+                            .html(slots[x][time].contents())
+                            .appendTo($td);
+                        
+                    }
+                }
+            }
         }
     }
 }
