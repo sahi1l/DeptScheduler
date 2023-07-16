@@ -1,0 +1,8 @@
+* How to handle overlaps
+** Algorithmically
+*** Each column has ranges of times when it is occupied
+*** Fill the first unoccupied column, or add a new one
+** Graphically
+** Give every <td> an appropriate class like ".monday" etc
+** To insert a new table column, $(".monday").after() or some such
+

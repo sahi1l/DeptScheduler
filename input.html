@@ -1,0 +1,65 @@
+<HTML>
+  <TITLE>Department Class Scheduler</TITLE>
+  <SCRIPT src="/lib/jquery.js"></SCRIPT>
+  <SCRIPT src="input.js"></SCRIPT>
+  <STYLE>
+    table {display:inline-block;vertical-align:top;}
+    .top {
+	border-bottom:0px !important;
+	background-color:#ddd;
+	border-top:2px;
+	text-align:center;
+    }
+    .middle {/*border-bottom:2px #ddd !important;
+	     border-top:2px #ddd !important;*/
+	border-bottom:0px !important;
+	border-top:0px !important;
+	     background-color:#ddd;}
+    #calendar {
+/*	display:table;*/
+/*	border-collapse:collapse; omit?*/ 
+	vertical-align:top;
+    }
+    #calendar .tr, #calendar .thead {display:block;height:39.5px;}
+`
+#calendar .th {font-weight:bold;}
+#calendar .tr .th,#calendar #corner {
+    text-align:right;
+    padding:0px 5px;
+    width:35px;
+    border:0px;
+    font-weight:bold;
+    height:20px; /*40-2*padding*/
+}
+#calendar .thead, #calendar .thead>div {height:20px !important;text-align:center;}
+#calendar .thead .th {text-align:center;vertical-align:bottom;}
+    #calendar .th,#calendar .tr>div,#calendar .thead>div {
+	width:80px;
+	vertical-align:top;
+	height:40px;
+	display:inline-block;
+	border:1px solid;
+    }
+    #calendar .top>div,
+    #calendar .middle>div {z-index:2; position:relative;}
+/*    #calendar .tr>div {display:table-cell; border:1px solid; min-width:80px; max-height:40px;}*/
+    #calendar .thead>div {
+	/*display:table-cell;border:1px solid;*/
+	font-weight:bold;
+    }
+  </STYLE>
+<BODY>
+  <TABLE id="input">
+    <THEAD>
+      <TR><TH>Class Name<TH>Timeslot<TH>Instructor
+    </THEAD>
+    <TBODY>
+      <TR><TD class="name"><INPUT><TD class="slot"><INPUT><TD class="code"><INPUT>
+      </TBODY>
+  </TABLE>
+
+
+  <DIV style="display:inline-block;vertical-align:top;">
+    <DIV id="calendar"></DIV>
+    </div>
+</HTML>

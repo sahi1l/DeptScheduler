@@ -1,0 +1,17 @@
+* How to handle overlaps
+** Algorithmically
+*** Each column has ranges of times when it is occupied
+*** Fill the first unoccupied column, or add a new one
+** Graphically
+** Give every <td> an appropriate class like ".monday" etc
+** To insert a new table column, $(".monday").after() or some such
+
+* How to handle times outside the normal
+** Using a table
+*** Work with half-hour blocks
+*** Merge blocks as needed (this might be hard? I'll need to delete the block below it if necessary)
+    The table will be write-once, and recreated every time by scratch
+    So this isn't a huge concern perhaps
+*** Create a data structure in Schedule which is a set of columns. Then read off that data structure to create the table
+
+
